@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>SAN VALENTIN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden; /* Oculta las barras de desplazamiento */
+            background: #000; /* Fondo negro */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            position: fixed; /* Evita el scroll en móvil */
+            touch-action: none; /* Previene gestos del navegador */
+            -webkit-user-select: none; /* No seleccionar texto en móvil */
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+            background: radial-gradient(ellipse at center, #1a0d00 0%, #000000 100%); /* Gradiente radial de fondo */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            touch-action: none; /* Previene zoom y scroll en móvil */
+        }
+
+        /* Contenedor de controles derecha */
+        .controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px; /* Espacio entre botones */
+            z-index: 1000;
+            max-width: 100px; /* Ancho máximo de los botones */
+        }
+
+        /* Contenedor de controles izquierda */
+        .controls-left {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 1000;
+            max-width: 100px;
+        }
+
+        /* Botón de reset en el centro inferior */
+        .reset-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 30px;
+            background: linear-gradient(135deg, rgba(255, 50, 50, 0.9), rgba(200, 0, 0, 0.9));
+            border: 2px solid rgba(255, 100, 100, 0.8);
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 50, 50, 0.5);
+            z-index: 1001;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .reset-btn:hover, .reset-btn:active {
+            background: linear-gradient(135deg, rgba(255, 80, 80, 1), rgba(220, 20, 20, 1));
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.8);
+            transform: translateX(-50%) translateY(-3px);
+        }
+
+        /* Estilos de los botones */
+        .btn {
+            padding: 8px 12px; /* Padding reducido para botones más compactos */
+            background: rgba(255, 107, 0, 0.9);
+            border: none;
+            border-radius: 6px; /* Bordes redondeados */
+            color: white;
+            font-weight: bold;
+            font-size: 11px; /* Texto más pequeño */
+            cursor: pointer;
+            transition: all 0.3s ease; /* Transición suave */
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.5); /* Sombra brillante */
+            text-align: center;
+            -webkit-tap-highlight-color: transparent; /* Quita el highlight azul en móvil */
+            touch-action: manipulation; /* Mejora la respuesta táctil */
+        }
+
+        /* Efecto hover en los botones */
+        .btn:hover, .btn:active {
+            background: rgba(255, 107, 0, 1);
+            box-shadow: 0 0 25px rgba(255, 107, 0, 0.8);
+            transform: translateY(-2px); /* Levanta el botón */
+        }
+
+        /* Botón activo (seleccionado) */
+        .btn.active {
+            background: rgba(0, 200, 100, 0.9);
+            box-shadow: 0 0 20px rgba(0, 200, 100, 0.5);
+        }
+
+        /* Botones especiales (explosión y latido) */
+        .btn.special {
+            background: linear-gradient(135deg, rgba(255, 0, 150, 0.9), rgba(255, 100, 0, 0.9));
+            font-size: 10px;
+            padding: 10px 8px;
+        }
+
+        .btn.special:hover, .btn.special:active {
+            background: linear-gradient(135deg, rgba(255, 0, 150, 1), rgba(255, 100, 0, 1));
+        }
+
+        /* Botón especial TE AMO - destaca más */
+        .btn.te-amo {
+            background: linear-gradient(135deg, rgba(255, 20, 100, 0.95), rgba(255, 100, 150, 0.95));
+            font-size: 11px;
+            padding: 12px 10px;
+            border: 2px solid rgba(255, 150, 200, 0.6);
+            box-shadow: 0 0 25px rgba(255, 100, 150, 0.7);
+            animation: pulse-love 2s ease-in-out infinite;
+        }
+
+        .btn.te-amo:hover, .btn.te-amo:active {
+            background: linear-gradient(135deg, rgba(255, 50, 120, 1), rgba(255, 120, 170, 1));
+            box-shadow: 0 0 35px rgba(255, 100, 150, 0.9);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        /* Animación de pulso para el botón TE AMO */
+        @keyframes pulse-love {
+            0%, 100% {
+                box-shadow: 0 0 25px rgba(255, 100, 150, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 35px rgba(255, 100, 150, 1);
+            }
+        }
+
+        /* Créditos en la esquina inferior */
+        .credits {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 10px;
+            pointer-events: none; /* No interfiere con los clicks */
+        }
+
+        /* Media query para dispositivos móviles */
+        @media (max-width: 768px) {
+            .controls, .controls-left {
+                top: 5px;
+                gap: 4px;
+                max-width: 80px; /* Botones aún más pequeños en móvil */
+            }
+
+            .controls {
+                right: 5px;
+            }
+
+            .controls-left {
+                left: 5px;
+            }
+
+            .btn {
+                padding: 6px 8px;
+                font-size: 9px; /* Texto más pequeño en móvil */
+            }
+
+            .btn.special {
+                padding: 8px 6px;
+                font-size: 9px;
+            }
+
+            .reset-btn {
+                bottom: 10px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            .credits {
+                font-size: 8px;
+                bottom: 5px;
+                left: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <!-- Botones del lado izquierdo -->
+    <div class="controls-left">
+        <button class="btn" id="moonBtn">Moon</button>
+        <button class="btn" id="cosmicBtn">Cosmic</button>
+        <button class="btn active" id="emberBtn">Ember</button>
+        <button class="btn" id="loveBtn">Love</button>
+        <button class="btn" id="mintBtn">Mint</button>
+        <button class="btn" id="sunsetBtn">Sunset</button>
+        <button class="btn" id="purpleBtn">Purple</button>
+        <button class="btn" id="rainbowBtn">Rainbow</button>
+    </div>
+
+    <!-- Botones del lado derecho -->
+    <div class="controls">
+        <button class="btn te-amo" id="teAmoBtn">💖 TE AMO</button>
+        <button class="btn special" id="explodeBtn">💥 Explosión</button>
+        <button class="btn special" id="heartbeatBtn">💓 Latido</button>
+        <button class="btn special" id="dissolveBtn">✨ Deshacer</button>
+        <button class="btn special" id="torbellinoBtn">💫 Torbellino</button>
+        <button class="btn special" id="lightningBtn">⚡ Rayo</button>
+        <button class="btn special" id="starsBtn">🌟 Estrellas</button>
+        <button class="btn special" id="fireworksBtn">🎆 Fuegos</button>
+        <button class="btn special" id="freezeBtn">❄️ Congelar</button>
+        <button class="btn special" id="fireBtn">🔥 Fuego</button>
+    </div>
+
+    <!-- Botón de reset en el centro -->
+    <button class="reset-btn" id="resetBtn">🛑 DETENER TODO</button>
+
+    <div class="credits">
+        ALO ROJAS
+    </div>
+
+    <script>
+        // ========== CONFIGURACIÓN INICIAL DEL CANVAS ==========
+        const canvas = document.getElementById('canvas'); // Obtiene el elemento canvas del HTML
+        const ctx = canvas.getContext('2d'); // Obtiene el contexto 2D para dibujar
+
+        // Establece el tamaño del canvas igual al tamaño de la ventana
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // ========== SISTEMA DE PARTÍCULAS ==========
+        const particles = []; // Array que contendrá todas las partículas
+        const dissolveParticles = []; // Array para las partículas del corazón que se deshace
+        const starParticles = []; // Array para las estrellas
+        const fireworkParticles = []; // Array para fuegos artificiales
+        const particleCount = 150; // Número total de partículas (corazones pequeños)
+        let mouseX = canvas.width / 2; // Posición X del mouse (inicia en el centro)
+        let mouseY = canvas.height / 2; // Posición Y del mouse (inicia en el centro)
+        let explosionActive = false; // Variable para activar el efecto de explosión
+        let heartbeatActive = false; // Variable para activar el efecto de latido
+        let heartbeatScale = 1; // Escala actual del corazón central (para el latido)
+        let heartbeatDirection = 1; // Dirección del latido (1 = crece, -1 = decrece)
+        let dissolveActive = false; // Variable para el efecto de deshacer
+        let dissolveProgress = 0; // Progreso del efecto de deshacer (0 = completo, 1 = deshecho)
+        let reforming = false; // Si el corazón se está reformando
+        
+        // Nuevos efectos
+        let torbellinoActive = false; // Efecto torbellino
+        let torbellinoAngle = 0; // Ángulo del torbellino
+        let waveActive = false; // Efecto onda
+        let waveTime = 0; // Tiempo para la onda
+        let lightningActive = false; // Efecto rayo
+        let lightningBolts = []; // Array de rayos
+        let starsActive = false; // Efecto estrellas
+        let fireworksActive = false; // Efecto fuegos artificiales
+        let freezeActive = false; // Efecto congelar
+        let frozenParticles = []; // Partículas congeladas cayendo
+        let fireActive = false; // Efecto fuego
+        let fireParticles = []; // Partículas de fuego
+        
+        // Efecto TE AMO
+        let teAmoActive = false; // Si el efecto está activo
+        let teAmoParticles = []; // Partículas para formar las letras
+        let teAmoProgress = 0; // Progreso del efecto (0-1)
+
+        // ========== TEMAS DE COLORES ==========
+        // Cada tema tiene 3 arrays de colores RGB: primario, secundario y brillo
+        const themes = {
+            moon: { // Tema lunar (azul claro)
+                primary: [200, 200, 255],
+                secondary: [150, 150, 255],
+                glow: [180, 180, 255]
+            },
+            cosmic: { // Tema cósmico (cian y morado)
+                primary: [0, 200, 255],
+                secondary: [100, 0, 255],
+                glow: [50, 100, 255]
+            },
+            ember: { // Tema fuego (naranja)
+                primary: [255, 150, 0],
+                secondary: [255, 80, 0],
+                glow: [255, 200, 0]
+            },
+            love: { // Tema amor (rosa intenso)
+                primary: [255, 50, 150],
+                secondary: [255, 20, 100],
+                glow: [255, 100, 180]
+            },
+            mint: { // Tema menta (verde agua)
+                primary: [100, 255, 200],
+                secondary: [50, 255, 150],
+                glow: [150, 255, 220]
+            },
+            sunset: { // Tema atardecer (rosa suave)
+                primary: [255, 100, 150],
+                secondary: [255, 50, 80],
+                glow: [255, 150, 100]
+            },
+            purple: { // Tema morado
+                primary: [200, 100, 255],
+                secondary: [150, 50, 255],
+                glow: [220, 150, 255]
+            },
+            rainbow: { // Tema arcoíris (multicolor)
+                primary: [255, 100, 200],
+                secondary: [100, 200, 255],
+                glow: [200, 255, 100]
+            }
+        };
+
+        let currentTheme = themes.ember; // Tema activo por defecto (Ember/fuego)
+
+        // ========== FUNCIÓN PARA DIBUJAR CORAZONES MEJORADA ==========
+        // Esta función dibuja la forma de un corazón más definido y reconocible
+        function drawHeart(x, y, size, rotation = 0) {
+            ctx.save(); // Guarda el estado actual del canvas
+            ctx.translate(x, y); // Mueve el origen a la posición del corazón
+            ctx.rotate(rotation); // Rota el corazón según el ángulo dado
+            ctx.beginPath(); // Inicia un nuevo trazo
+            
+            // Escala para el corazón
+            const width = size;
+            const height = size;
+            
+            // Comienza en la punta inferior del corazón
+            ctx.moveTo(0, height / 4);
+            
+            // Lado izquierdo hacia arriba
+            ctx.bezierCurveTo(
+                0, 0,                          // Control: desde la punta hacia arriba
+                -width / 2, -height / 3,       // Control: curvatura lateral izquierda
+                -width / 2, -height / 2        // Fin: tope del lóbulo izquierdo
+            );
+            
+            // Curva superior izquierda (redondeo del lóbulo)
+            ctx.bezierCurveTo(
+                -width / 2, -height * 0.7,     // Control: parte alta del lóbulo
+                -width / 4, -height * 0.75,    // Control: hacia el centro
+                0, -height * 0.6               // Fin: depresión central superior
+            );
+            
+            // Curva superior derecha (redondeo del lóbulo derecho)
+            ctx.bezierCurveTo(
+                width / 4, -height * 0.75,     // Control: desde el centro
+                width / 2, -height * 0.7,      // Control: parte alta del lóbulo
+                width / 2, -height / 2         // Fin: tope del lóbulo derecho
+            );
+            
+            // Lado derecho hacia abajo
+            ctx.bezierCurveTo(
+                width / 2, -height / 3,        // Control: curvatura lateral derecha
+                0, 0,                          // Control: hacia la punta
+                0, height / 4                  // Fin: punta inferior (cierra el path)
+            );
+            
+            ctx.closePath(); // Cierra el trazo del corazón
+            ctx.restore(); // Restaura el estado anterior del canvas
+        }
+
+        // ========== CLASE PARTICLE (PARTÍCULA/CORAZÓN PEQUEÑO) ==========
+        class Particle {
+            constructor() {
+                this.reset(); // Inicializa la partícula con valores aleatorios
+            }
+
+            // Reinicia la partícula con nuevos valores aleatorios
+            reset() {
+                this.x = Math.random() * canvas.width; // Posición X aleatoria
+                this.y = Math.random() * canvas.height; // Posición Y aleatoria
+                this.z = Math.random() * 1500; // Profundidad (no se usa actualmente)
+                this.vx = (Math.random() - 0.5) * 0.5; // Velocidad horizontal aleatoria
+                this.vy = (Math.random() - 0.5) * 0.5; // Velocidad vertical aleatoria
+                this.life = Math.random(); // Vida de la partícula (opacidad)
+                this.decay = Math.random() * 0.01 + 0.005; // Velocidad de desvanecimiento
+                this.size = Math.random() * 8 + 6; // Tamaño aleatorio del corazón
+                this.rotation = Math.random() * Math.PI * 2; // Rotación inicial aleatoria
+                this.rotationSpeed = (Math.random() - 0.5) * 0.05; // Velocidad de rotación
+            }
+
+            // Actualiza la posición y estado de la partícula en cada frame
+            update() {
+                // ===== EFECTO DE TORBELLINO =====
+                if (torbellinoActive) {
+                    const dx = this.x - canvas.width / 2;
+                    const dy = this.y - canvas.height / 2;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 400) {
+                        const angle = Math.atan2(dy, dx);
+                        const force = (400 - distance) / 400;
+                        this.vx += Math.cos(angle + Math.PI / 2) * force * 0.5;
+                        this.vy += Math.sin(angle + Math.PI / 2) * force * 0.5;
+                    }
+                }
+                
+                // ===== EFECTO DE ONDA =====
+                if (waveActive) {
+                    const dx = this.x - canvas.width / 2;
+                    const dy = this.y - canvas.height / 2;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const waveOffset = Math.sin(distance * 0.05 - waveTime) * 20;
+                    
+                    if (distance > 0) {
+                        this.x += (dx / distance) * waveOffset * 0.01;
+                        this.y += (dy / distance) * waveOffset * 0.01;
+                    }
+                }
+                
+                // ===== EFECTO DE CONGELAR =====
+                if (freezeActive) {
+                    this.vy += 0.2; // Gravedad
+                    this.vx *= 0.99;
+                    this.rotationSpeed = 0.02;
+                }
+                
+                // ===== EFECTO DE EXPLOSIÓN =====
+                if (explosionActive) {
+                    const dx = this.x - canvas.width / 2; // Distancia horizontal al centro
+                    const dy = this.y - canvas.height / 2; // Distancia vertical al centro
+                    const distance = Math.sqrt(dx * dx + dy * dy); // Distancia total al centro
+                    
+                    // Si la partícula está cerca del centro, aplicar fuerza explosiva
+                    if (distance < 300) {
+                        const force = (300 - distance) / 300; // Fuerza inversamente proporcional a la distancia
+                        this.vx += (dx / distance) * force * 2; // Aplica fuerza horizontal
+                        this.vy += (dy / distance) * force * 2; // Aplica fuerza vertical
+                    }
+                }
+                
+                // ===== ATRACCIÓN HACIA EL MOUSE =====
+                const dx = mouseX - this.x; // Distancia horizontal al mouse
+                const dy = mouseY - this.y; // Distancia vertical al mouse
+                const distance = Math.sqrt(dx * dx + dy * dy); // Distancia total al mouse
+                
+                // Si está cerca del mouse y no hay explosión, atraer partícula
+                if (distance < 200 && !explosionActive && !freezeActive) {
+                    this.vx += dx * 0.0001; // Acelera hacia el mouse en X
+                    this.vy += dy * 0.0001; // Acelera hacia el mouse en Y
+                } else if (!freezeActive) {
+                    this.vx *= 0.99; // Reduce la velocidad gradualmente (fricción)
+                    this.vy *= 0.99;
+                }
+
+                this.x += this.vx; // Mueve la partícula horizontalmente
+                this.y += this.vy; // Mueve la partícula verticalmente
+                
+                // ===== MOVIMIENTO ORGÁNICO (DERIVA) =====
+                if (!freezeActive) {
+                    this.x += Math.sin(this.y * 0.01) * 0.2; // Ondulación horizontal
+                    this.y += Math.cos(this.x * 0.01) * 0.2; // Ondulación vertical
+                }
+
+                this.rotation += this.rotationSpeed; // Rota el corazón
+
+                this.life -= this.decay; // Reduce la vida de la partícula
+                
+                // Si la vida llega a 0, reiniciar la partícula
+                if (this.life <= 0) {
+                    this.reset();
+                }
+
+                // ===== WRAP AROUND (REGRESAR DEL OTRO LADO) =====
+                // Si sale de la pantalla, reaparece del lado opuesto
+                if (this.x < -50) this.x = canvas.width + 50;
+                if (this.x > canvas.width + 50) this.x = -50;
+                if (this.y < -50) this.y = canvas.height + 50;
+                if (this.y > canvas.height + 50) this.y = -50;
+            }
+
+            // Dibuja la partícula (corazón pequeño) en el canvas
+            draw() {
+                const alpha = this.life; // Opacidad basada en la vida restante
+                const [r, g, b] = currentTheme.primary; // Obtiene el color primario del tema actual
+                
+                ctx.save(); // Guarda el estado del canvas
+                
+                // ===== EFECTO DE BRILLO =====
+                ctx.shadowBlur = 15; // Desenfoque de la sombra (brillo)
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${alpha * 0.8})`; // Color del brillo
+                
+                // Dibuja el corazón en la posición actual con rotación
+                drawHeart(this.x, this.y, this.size, this.rotation);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.9})`; // Color con transparencia
+                ctx.fill(); // Rellena el corazón
+                
+                ctx.restore(); // Restaura el estado del canvas
+            }
+        }
+
+        // ========== CLASE DISSOLVE PARTICLE (PARTÍCULAS DEL EFECTO DESHACER) ==========
+        // Estas partículas representan fragmentos del corazón central cuando se deshace
+        class DissolveParticle {
+            constructor(x, y) {
+                this.startX = x; // Posición inicial X (desde el corazón)
+                this.startY = y; // Posición inicial Y
+                this.x = x;
+                this.y = y;
+                this.targetX = x; // Posición objetivo X (para reformarse)
+                this.targetY = y; // Posición objetivo Y
+                
+                // Velocidad aleatoria para dispersión
+                const angle = Math.random() * Math.PI * 2; // Ángulo aleatorio
+                const speed = Math.random() * 3 + 2; // Velocidad de dispersión
+                this.vx = Math.cos(angle) * speed; // Velocidad horizontal
+                this.vy = Math.sin(angle) * speed; // Velocidad vertical
+                
+                this.size = Math.random() * 6 + 4; // Tamaño del fragmento
+                this.rotation = Math.random() * Math.PI * 2; // Rotación inicial
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1; // Velocidad de rotación
+                this.alpha = 1; // Opacidad
+            }
+
+            // Actualiza la partícula durante el efecto de deshacer
+            update() {
+                if (reforming) {
+                    // ===== FASE DE REFORMACIÓN =====
+                    // Las partículas regresan a sus posiciones originales
+                    const dx = this.targetX - this.x; // Distancia al objetivo
+                    const dy = this.targetY - this.y;
+                    
+                    this.x += dx * 0.1; // Se mueve 10% de la distancia cada frame
+                    this.y += dy * 0.1;
+                    
+                    this.vx *= 0.9; // Reduce la velocidad
+                    this.vy *= 0.9;
+                    
+                    this.alpha = Math.min(1, this.alpha + 0.02); // Aumenta opacidad
+                } else {
+                    // ===== FASE DE DISPERSIÓN =====
+                    // Las partículas se alejan del centro
+                    this.x += this.vx; // Aplica velocidad
+                    this.y += this.vy;
+                    
+                    this.vx *= 0.98; // Fricción
+                    this.vy *= 0.98;
+                    
+                    this.alpha = Math.max(0, this.alpha - 0.01); // Reduce opacidad
+                }
+                
+                this.rotation += this.rotationSpeed; // Rota el fragmento
+            }
+
+            // Dibuja el fragmento del corazón
+            draw() {
+                const [r, g, b] = currentTheme.secondary;
+                
+                ctx.save();
+                
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${this.alpha * 0.6})`;
+                
+                drawHeart(this.x, this.y, this.size, this.rotation);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`;
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // ========== CLASE STAR PARTICLE (ESTRELLAS) ==========
+        class StarParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 100 + 150;
+                this.x = canvas.width / 2 + Math.cos(angle) * distance;
+                this.y = canvas.height / 2 + Math.sin(angle) * distance;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.life = 1;
+                this.size = Math.random() * 4 + 2;
+                this.rotation = 0;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += 0.1;
+                this.life -= 0.01;
+                
+                if (this.life <= 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                const [r, g, b] = currentTheme.glow;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.life})`;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${this.life})`;
+                
+                // Dibuja estrella de 5 puntas
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+                    const radius = i % 2 === 0 ? this.size : this.size / 2;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // ========== CLASE FIREWORK PARTICLE (FUEGOS ARTIFICIALES) ==========
+        class FireworkParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.life = 1;
+                this.size = Math.random() * 3 + 1;
+                this.gravity = 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx *= 0.99;
+                this.life -= 0.02;
+            }
+
+            draw() {
+                const [r, g, b] = currentTheme.secondary;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.life})`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${this.life})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // ========== CLASE FIRE PARTICLE (PARTÍCULAS DE FUEGO) ==========
+        class FireParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 180;
+                this.x = canvas.width / 2 + Math.cos(angle) * radius;
+                this.y = canvas.height / 2 + Math.sin(angle) * radius;
+                this.vy = -Math.random() * 2 - 1;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.life = 1;
+                this.size = Math.random() * 8 + 4;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy -= 0.05; // Sube
+                this.life -= 0.02;
+                
+                if (this.life <= 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                const [r, g, b] = currentTheme.glow;
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                gradient.addColorStop(0, `rgba(255, 255, 100, ${this.life})`);
+                gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${this.life * 0.5})`);
+                gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // ========== CLASE TE AMO PARTICLE (PARTÍCULAS QUE FORMAN LAS LETRAS) ==========
+        class TeAmoParticle {
+            constructor(targetX, targetY) {
+                // Comienza desde el corazón central
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50;
+                this.x = canvas.width / 2 + Math.cos(angle) * distance;
+                this.y = canvas.height / 2 + Math.sin(angle) * distance;
+                
+                // Posición objetivo (letra)
+                this.targetX = targetX;
+                this.targetY = targetY;
+                
+                // Velocidad inicial de explosión
+                this.vx = (this.x - canvas.width / 2) * 0.15;
+                this.vy = (this.y - canvas.height / 2) * 0.15;
+                
+                this.size = Math.random() * 5 + 3;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.alpha = 1;
+            }
+
+            update() {
+                if (teAmoProgress < 0.3) {
+                    // Fase 1: Explosión inicial
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vx *= 0.95;
+                    this.vy *= 0.95;
+                } else {
+                    // Fase 2: Moverse hacia las letras
+                    const dx = this.targetX - this.x;
+                    const dy = this.targetY - this.y;
+                    
+                    this.x += dx * 0.1;
+                    this.y += dy * 0.1;
+                }
+                
+                this.rotation += this.rotationSpeed;
+            }
+
+            draw() {
+                const [r, g, b] = currentTheme.secondary;
+                
+                ctx.save();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${this.alpha * 0.8})`;
+                
+                drawHeart(this.x, this.y, this.size, this.rotation);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`;
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // ========== CREAR TODAS LAS PARTÍCULAS ==========
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle()); // Crea y añade cada partícula al array
+        }
+
+        // ========== FUNCIÓN PARA DIBUJAR EL CORAZÓN CENTRAL ==========
+        function drawLogo() {
+            const centerX = canvas.width / 2; // Centro horizontal del canvas
+            const centerY = canvas.height / 2; // Centro vertical del canvas
+            let size = 180; // Tamaño base del corazón central
+            
+            // ===== EFECTO DE LATIDO =====
+            if (heartbeatActive) {
+                heartbeatScale += heartbeatDirection * 0.02; // Cambia la escala gradualmente
+                if (heartbeatScale > 1.15) { // Si crece demasiado
+                    heartbeatDirection = -1; // Cambia dirección a decrecer
+                } else if (heartbeatScale < 0.95) { // Si decrece demasiado
+                    heartbeatDirection = 1; // Cambia dirección a crecer
+                }
+                size *= heartbeatScale; // Aplica la escala al tamaño
+            }
+
+            // ===== SI ESTÁ ACTIVO EL EFECTO TE AMO, NO DIBUJAR EL CORAZÓN =====
+            if (teAmoActive) {
+                return; // No dibuja el corazón durante el efecto TE AMO
+            }
+
+            // ===== SI ESTÁ ACTIVO EL EFECTO DE DESHACER, NO DIBUJAR EL CORAZÓN =====
+            if (dissolveActive) {
+                // Actualizar y dibujar partículas de disolución
+                dissolveParticles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+                
+                // Controlar el progreso del efecto
+                if (!reforming) {
+                    dissolveProgress += 0.02; // Aumenta progreso de disolución
+                    if (dissolveProgress >= 1) {
+                        reforming = true; // Comienza a reformarse
+                    }
+                } else {
+                    dissolveProgress -= 0.015; // Disminuye progreso (reforma)
+                    if (dissolveProgress <= 0) {
+                        // Termina el efecto
+                        dissolveActive = false;
+                        reforming = false;
+                        dissolveProgress = 0;
+                        dissolveParticles.length = 0; // Limpia las partículas
+                    }
+                }
+                return; // No dibuja el corazón normal
+            }
+
+            ctx.save(); // Guarda el estado del canvas
+            
+            // ===== CAPAS DE BRILLO EXTERIOR =====
+            // Dibuja múltiples capas para crear un efecto de resplandor
+            for (let i = 4; i >= 0; i--) {
+                const [r, g, b] = currentTheme.secondary; // Color secundario del tema
+                const offset = i * 8; // Cada capa es más grande que la anterior
+                const alpha = 0.3 - i * 0.05; // Opacidad decrece en capas exteriores
+                
+                ctx.shadowBlur = 50 + i * 15; // Desenfoque de la sombra
+                ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${alpha})`; // Color de la sombra
+                
+                drawHeart(centerX, centerY, size + offset, 0); // Dibuja el corazón
+                
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`; // Color del borde
+                ctx.lineWidth = 3; // Grosor del borde
+                ctx.stroke(); // Dibuja el borde
+            }
+            
+            // ===== CORAZÓN PRINCIPAL CON GRADIENTE =====
+            drawHeart(centerX, centerY, size, 0); // Dibuja el corazón base
+            
+            // Crea un gradiente radial desde el centro hacia afuera
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY - size * 0.4, 0, // Punto inicial (arriba del centro)
+                centerX, centerY, size * 1.2 // Punto final (área del corazón)
+            );
+            const [r, g, b] = currentTheme.secondary; // Color secundario
+            const [gr, gg, gb] = currentTheme.glow; // Color de brillo
+            
+            // Define los colores del gradiente
+            gradient.addColorStop(0, `rgba(${gr}, ${gg}, ${gb}, 0.9)`); // Centro brillante
+            gradient.addColorStop(0.4, `rgba(${r}, ${g}, ${b}, 0.8)`); // Medio
+            gradient.addColorStop(1, `rgba(${r - 50}, ${g - 50}, ${b - 50}, 0.6)`); // Bordes más oscuros
+            
+            ctx.fillStyle = gradient; // Aplica el gradiente
+            ctx.shadowBlur = 30; // Sombra del corazón
+            ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
+            ctx.fill(); // Rellena el corazón con el gradiente
+            
+            // ===== BORDE BRILLANTE PARA DEFINICIÓN =====
+            drawHeart(centerX, centerY, size, 0);
+            ctx.strokeStyle = `rgba(${gr}, ${gg}, ${gb}, 0.9)`; // Borde muy brillante
+            ctx.lineWidth = 4; // Grosor del borde
+            ctx.shadowBlur = 20; // Sombra del borde
+            ctx.shadowColor = `rgba(${gr}, ${gg}, ${gb}, 1)`;
+            ctx.stroke(); // Dibuja el borde
+            
+            // ===== RESALTADO INTERIOR =====
+            drawHeart(centerX, centerY, size * 0.85, 0); // Corazón más pequeño adentro
+            ctx.strokeStyle = `rgba(${gr}, ${gg}, ${gb}, 0.4)`; // Color semi-transparente
+            ctx.lineWidth = 2; // Borde delgado
+            ctx.shadowBlur = 10;
+            ctx.stroke(); // Dibuja el resaltado interior
+            
+            ctx.restore(); // Restaura el estado del canvas
+        }
+
+        // ========== FUNCIÓN PARA CREAR PARTÍCULAS DEL EFECTO DESHACER ==========
+        function createDissolveParticles() {
+            dissolveParticles.length = 0; // Limpia el array
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const size = 180;
+            const particleCount = 300; // Más partículas para mejor definición
+            
+            // Crea partículas siguiendo exactamente la forma del corazón
+            for (let i = 0; i < particleCount; i++) {
+                const t = i / particleCount; // Progreso de 0 a 1
+                
+                let x, y;
+                
+                // Usamos la misma lógica de las curvas Bézier del corazón
+                // pero la recorremos punto por punto
+                
+                if (t <= 0.25) {
+                    // Lado izquierdo hacia arriba (desde punta hasta tope izquierdo)
+                    const localT = t / 0.25;
+                    const startX = 0;
+                    const startY = size / 4;
+                    const cp1X = 0;
+                    const cp1Y = 0;
+                    const cp2X = -size / 2;
+                    const cp2Y = -size / 3;
+                    const endX = -size / 2;
+                    const endY = -size / 2;
+                    
+                    // Fórmula de Bézier cúbica
+                    const mt = 1 - localT;
+                    x = mt*mt*mt*startX + 3*mt*mt*localT*cp1X + 3*mt*localT*localT*cp2X + localT*localT*localT*endX;
+                    y = mt*mt*mt*startY + 3*mt*mt*localT*cp1Y + 3*mt*localT*localT*cp2Y + localT*localT*localT*endY;
+                    
+                } else if (t <= 0.375) {
+                    // Lóbulo superior izquierdo
+                    const localT = (t - 0.25) / 0.125;
+                    const startX = -size / 2;
+                    const startY = -size / 2;
+                    const cp1X = -size / 2;
+                    const cp1Y = -size * 0.7;
+                    const cp2X = -size / 4;
+                    const cp2Y = -size * 0.75;
+                    const endX = 0;
+                    const endY = -size * 0.6;
+                    
+                    const mt = 1 - localT;
+                    x = mt*mt*mt*startX + 3*mt*mt*localT*cp1X + 3*mt*localT*localT*cp2X + localT*localT*localT*endX;
+                    y = mt*mt*mt*startY + 3*mt*mt*localT*cp1Y + 3*mt*localT*localT*cp2Y + localT*localT*localT*endY;
+                    
+                } else if (t <= 0.5) {
+                    // Lóbulo superior derecho
+                    const localT = (t - 0.375) / 0.125;
+                    const startX = 0;
+                    const startY = -size * 0.6;
+                    const cp1X = size / 4;
+                    const cp1Y = -size * 0.75;
+                    const cp2X = size / 2;
+                    const cp2Y = -size * 0.7;
+                    const endX = size / 2;
+                    const endY = -size / 2;
+                    
+                    const mt = 1 - localT;
+                    x = mt*mt*mt*startX + 3*mt*mt*localT*cp1X + 3*mt*localT*localT*cp2X + localT*localT*localT*endX;
+                    y = mt*mt*mt*startY + 3*mt*mt*localT*cp1Y + 3*mt*localT*localT*cp2Y + localT*localT*localT*endY;
+                    
+                } else {
+                    // Lado derecho hacia abajo (desde tope derecho hasta punta)
+                    const localT = (t - 0.5) / 0.5;
+                    const startX = size / 2;
+                    const startY = -size / 2;
+                    const cp1X = size / 2;
+                    const cp1Y = -size / 3;
+                    const cp2X = 0;
+                    const cp2Y = 0;
+                    const endX = 0;
+                    const endY = size / 4;
+                    
+                    const mt = 1 - localT;
+                    x = mt*mt*mt*startX + 3*mt*mt*localT*cp1X + 3*mt*localT*localT*cp2X + localT*localT*localT*endX;
+                    y = mt*mt*mt*startY + 3*mt*mt*localT*cp1Y + 3*mt*localT*localT*cp2Y + localT*localT*localT*endY;
+                }
+                
+                // Añade un poco de variación aleatoria para llenar el interior
+                const randomOffset = Math.random() * 30;
+                const randomAngle = Math.random() * Math.PI * 2;
+                x += Math.cos(randomAngle) * randomOffset;
+                y += Math.sin(randomAngle) * randomOffset;
+                
+                // Convierte a coordenadas absolutas
+                x += centerX;
+                y += centerY;
+                
+                dissolveParticles.push(new DissolveParticle(x, y));
+            }
+        }
+
+        // ========== FUNCIÓN PARA CREAR PARTÍCULAS DEL EFECTO TE AMO ==========
+        function createTeAmoParticles() {
+            teAmoParticles.length = 0; // Limpia el array
+            
+            // Definir las posiciones de las letras "TE AMO"
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const letterSize = Math.min(canvas.width, canvas.height) * 0.08; // Tamaño adaptativo
+            const letterSpacing = letterSize * 1.8;
+            
+            // Posiciones de inicio para centrar el texto
+            const startX = centerX - (letterSpacing * 2.5);
+            const startY = centerY;
+            
+            // Usar cantidad moderada de partículas para fluidez (75 partículas por letra)
+            const particlesPerLetter = 75;
+            
+            // Puntos para formar cada letra
+            const letters = {
+                T: [ // T
+                    [0, 0], [0.2, 0], [0.4, 0], [0.6, 0], [0.8, 0], [1, 0],
+                    [0.5, 0.2], [0.5, 0.4], [0.5, 0.6], [0.5, 0.8], [0.5, 1]
+                ],
+                E: [ // E
+                    [0, 0], [0, 0.2], [0, 0.4], [0, 0.6], [0, 0.8], [0, 1],
+                    [0.3, 0], [0.6, 0], [0.9, 0],
+                    [0.3, 0.5], [0.6, 0.5],
+                    [0.3, 1], [0.6, 1], [0.9, 1]
+                ],
+                A: [ // A
+                    [0.5, 0], [0.3, 0.3], [0.1, 0.6], [0, 1],
+                    [0.5, 0], [0.7, 0.3], [0.9, 0.6], [1, 1],
+                    [0.3, 0.6], [0.5, 0.6], [0.7, 0.6]
+                ],
+                M: [ // M
+                    [0, 1], [0, 0.7], [0, 0.4], [0, 0.1], [0, 0],
+                    [0.25, 0.3], [0.5, 0.5],
+                    [0.5, 0.5], [0.75, 0.3],
+                    [1, 0], [1, 0.1], [1, 0.4], [1, 0.7], [1, 1]
+                ],
+                O: [ // O
+                    [0.5, 0], [0.3, 0.1], [0.1, 0.3], [0, 0.5], [0.1, 0.7], [0.3, 0.9], [0.5, 1],
+                    [0.7, 0.9], [0.9, 0.7], [1, 0.5], [0.9, 0.3], [0.7, 0.1], [0.5, 0]
+                ]
+            };
+            
+            const letterOrder = ['T', 'E', 'A', 'M', 'O'];
+            
+            letterOrder.forEach((letter, letterIndex) => {
+                const basePoints = letters[letter];
+                const letterX = startX + letterIndex * letterSpacing;
+                
+                for (let i = 0; i < particlesPerLetter; i++) {
+                    // Selecciona un punto aleatorio de la letra
+                    const point = basePoints[Math.floor(Math.random() * basePoints.length)];
+                    
+                    // Añade variación aleatoria para llenar
+                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 8;
+                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 8;
+                    
+                    teAmoParticles.push(new TeAmoParticle(x, y));
+                }
+            });
+        }
+
+        // ========== SEGUIMIENTO DEL MOUSE ==========
+        // Actualiza la posición del mouse cuando se mueve
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; // Posición X del mouse
+            mouseY = e.clientY; // Posición Y del mouse
+        });
+
+        // ========== SOPORTE TÁCTIL (TOUCH) ==========
+        // Para dispositivos móviles con pantalla táctil
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Previene el scroll en móviles
+            mouseX = e.touches[0].clientX; // Posición X del toque
+            mouseY = e.touches[0].clientY; // Posición Y del toque
+        });
+
+        // ========== BUCLE DE ANIMACIÓN ==========
+        // Esta función se ejecuta continuamente para crear la animación
+        function animate() {
+            // ===== EFECTO DE DESVANECIMIENTO =====
+            // En lugar de limpiar completamente, pinta un negro semi-transparente
+            // Esto crea un efecto de estela detrás de las partículas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // ===== ACTUALIZAR EFECTOS ESPECIALES =====
+            if (waveActive) {
+                waveTime += 0.1; // Incrementa el tiempo de la onda
+            }
+
+            if (torbellinoActive) {
+                torbellinoAngle += 0.05; // Incrementa el ángulo del torbellino
+            }
+
+            // ===== EFECTO DE RAYOS =====
+            if (lightningActive) {
+                // Dibuja rayos desde el corazón
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                
+                if (Math.random() < 0.1) { // 10% de probabilidad cada frame
+                    const angle = Math.random() * Math.PI * 2;
+                    const length = Math.random() * 200 + 100;
+                    
+                    ctx.save();
+                    ctx.strokeStyle = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, 0.8)`;
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, 1)`;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    
+                    // Dibuja rayo con segmentos
+                    let currentX = centerX;
+                    let currentY = centerY;
+                    const segments = 5;
+                    
+                    for (let i = 0; i < segments; i++) {
+                        const segmentLength = length / segments;
+                        const offsetX = Math.cos(angle) * segmentLength + (Math.random() - 0.5) * 30;
+                        const offsetY = Math.sin(angle) * segmentLength + (Math.random() - 0.5) * 30;
+                        currentX += offsetX;
+                        currentY += offsetY;
+                        ctx.lineTo(currentX, currentY);
+                    }
+                    
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+
+            // ===== EFECTO DE ESTRELLAS =====
+            if (starsActive) {
+                starParticles.forEach(star => {
+                    star.update();
+                    star.draw();
+                });
+            }
+
+            // ===== EFECTO DE FUEGOS ARTIFICIALES =====
+            if (fireworksActive) {
+                // Crea nuevas explosiones ocasionalmente
+                if (Math.random() < 0.03) {
+                    const x = canvas.width / 2 + (Math.random() - 0.5) * 300;
+                    const y = canvas.height / 2 + (Math.random() - 0.5) * 300;
+                    for (let i = 0; i < 30; i++) {
+                        fireworkParticles.push(new FireworkParticle(x, y));
+                    }
+                }
+                
+                // Actualiza y dibuja fuegos artificiales
+                for (let i = fireworkParticles.length - 1; i >= 0; i--) {
+                    const fw = fireworkParticles[i];
+                    fw.update();
+                    fw.draw();
+                    
+                    if (fw.life <= 0) {
+                        fireworkParticles.splice(i, 1);
+                    }
+                }
+            }
+
+            // ===== EFECTO DE FUEGO =====
+            if (fireActive) {
+                fireParticles.forEach(fire => {
+                    fire.update();
+                    fire.draw();
+                });
+            }
+
+            // ===== EFECTO TE AMO =====
+            if (teAmoActive) {
+                teAmoProgress += 0.01; // Incrementa el progreso
+                
+                teAmoParticles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+                
+                // Termina el efecto después de 8 segundos
+                if (teAmoProgress >= 1) {
+                    teAmoActive = false;
+                    teAmoProgress = 0;
+                    teAmoParticles.length = 0;
+                }
+            }
+
+            // ===== ACTUALIZAR Y DIBUJAR PARTÍCULAS =====
+            // No dibujar partículas flotantes durante el efecto TE AMO
+            if (!teAmoActive) {
+                particles.forEach(particle => {
+                    particle.update(); // Actualiza posición y estado
+                    particle.draw(); // Dibuja la partícula
+                });
+            }
+
+            // ===== DIBUJAR CORAZÓN CENTRAL =====
+            drawLogo();
+
+            // ===== SIGUIENTE FRAME =====
+            requestAnimationFrame(animate); // Llama a la función nuevamente para el siguiente frame
+        }
+
+        // ========== INICIAR ANIMACIÓN ==========
+        animate(); // Inicia el bucle de animación
+
+        // ========== AJUSTE AL CAMBIAR TAMAÑO DE VENTANA ==========
+        // Cuando el usuario cambia el tamaño de la ventana o rota el dispositivo
+        function resizeCanvas() {
+            canvas.width = window.innerWidth; // Actualiza el ancho del canvas
+            canvas.height = window.innerHeight; // Actualiza la altura del canvas
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', resizeCanvas); // Para rotación de móvil
+
+        // ========== EVENT LISTENERS DE BOTONES DE TEMAS ==========
+        // Cada botón cambia el tema de colores activo
+        
+        // Botón TE AMO (primero, es el más importante)
+        document.getElementById('teAmoBtn').addEventListener('click', function() {
+            if (!teAmoActive) { // Solo activar si no está ya activo
+                teAmoActive = true;
+                teAmoProgress = 0;
+                createTeAmoParticles();
+            }
+        });
+        
+        document.getElementById('moonBtn').addEventListener('click', function() {
+            currentTheme = themes.moon; // Cambia al tema lunar
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active')); // Remueve "active" de todos los botones
+            this.classList.add('active'); // Marca este botón como activo
+        });
+
+        document.getElementById('cosmicBtn').addEventListener('click', function() {
+            currentTheme = themes.cosmic; // Cambia al tema cósmico
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        document.getElementById('emberBtn').addEventListener('click', function() {
+            currentTheme = themes.ember; // Cambia al tema fuego
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        document.getElementById('loveBtn').addEventListener('click', function() {
+            currentTheme = themes.love; // Cambia al tema amor
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        document.getElementById('mintBtn').addEventListener('click', function() {
+            currentTheme = themes.mint; // Cambia al tema menta
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        document.getElementById('sunsetBtn').addEventListener('click', function() {
+            currentTheme = themes.sunset; // Cambia al tema atardecer
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        document.getElementById('purpleBtn').addEventListener('click', function() {
+            currentTheme = themes.purple; // Cambia al tema morado
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        document.getElementById('rainbowBtn').addEventListener('click', function() {
+            currentTheme = themes.rainbow; // Cambia al tema arcoíris
+            document.querySelectorAll('.btn:not(.special)').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+
+        // ========== EVENT LISTENERS DE EFECTOS ESPECIALES ==========
+        
+        // Botón de explosión
+        document.getElementById('explodeBtn').addEventListener('click', function() {
+            explosionActive = true; // Activa el efecto de explosión
+            setTimeout(() => {
+                explosionActive = false; // Desactiva después de 2 segundos
+            }, 2000);
+        });
+
+        // Botón de latido
+        document.getElementById('heartbeatBtn').addEventListener('click', function() {
+            heartbeatActive = !heartbeatActive; // Alterna el efecto (on/off)
+            if (!heartbeatActive) {
+                heartbeatScale = 1; // Resetea la escala cuando se desactiva
+            }
+        });
+
+        // Botón de deshacer (nuevo efecto)
+        document.getElementById('dissolveBtn').addEventListener('click', function() {
+            if (!dissolveActive) { // Solo activar si no está ya activo
+                dissolveActive = true; // Activa el efecto
+                dissolveProgress = 0; // Reinicia el progreso
+                reforming = false; // Inicia en fase de disolución
+                createDissolveParticles(); // Crea las partículas del corazón
+            }
+        });
+
+        // ========== NUEVOS EFECTOS ==========
+
+        // Botón de Torbellino
+        document.getElementById('torbellinoBtn').addEventListener('click', function() {
+            torbellinoActive = !torbellinoActive;
+        });
+
+        // Botón de Rayo
+        document.getElementById('lightningBtn').addEventListener('click', function() {
+            lightningActive = !lightningActive;
+        });
+
+        // Botón de Estrellas
+        document.getElementById('starsBtn').addEventListener('click', function() {
+            starsActive = !starsActive;
+            if (starsActive && starParticles.length === 0) {
+                // Crea estrellas si no existen
+                for (let i = 0; i < 50; i++) {
+                    starParticles.push(new StarParticle());
+                }
+            }
+        });
+
+        // Botón de Fuegos Artificiales
+        document.getElementById('fireworksBtn').addEventListener('click', function() {
+            fireworksActive = !fireworksActive;
+            if (!fireworksActive) {
+                fireworkParticles.length = 0; // Limpia las partículas
+            }
+        });
+
+        // Botón de Congelar
+        document.getElementById('freezeBtn').addEventListener('click', function() {
+            freezeActive = true;
+            setTimeout(() => {
+                freezeActive = false;
+                // Reinicia todas las partículas
+                particles.forEach(p => {
+                    p.vx = (Math.random() - 0.5) * 0.5;
+                    p.vy = (Math.random() - 0.5) * 0.5;
+                    p.rotationSpeed = (Math.random() - 0.5) * 0.05;
+                });
+            }, 3000);
+        });
+
+        // Botón de Fuego
+        document.getElementById('fireBtn').addEventListener('click', function() {
+            fireActive = !fireActive;
+            if (fireActive && fireParticles.length === 0) {
+                // Crea partículas de fuego si no existen
+                for (let i = 0; i < 80; i++) {
+                    fireParticles.push(new FireParticle());
+                }
+            } else if (!fireActive) {
+                fireParticles.length = 0; // Limpia las partículas
+            }
+        });
+
+        // ========== BOTÓN DE RESET (DETENER TODO) ==========
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            // Desactiva todos los efectos
+            explosionActive = false;
+            heartbeatActive = false;
+            dissolveActive = false;
+            torbellinoActive = false;
+            waveActive = false;
+            lightningActive = false;
+            starsActive = false;
+            fireworksActive = false;
+            freezeActive = false;
+            fireActive = false;
+            teAmoActive = false; // Detiene efecto TE AMO
+            
+            // Limpia todos los arrays de partículas de efectos
+            dissolveParticles.length = 0;
+            starParticles.length = 0;
+            fireworkParticles.length = 0;
+            fireParticles.length = 0;
+            lightningBolts.length = 0;
+            teAmoParticles.length = 0; // Limpia partículas TE AMO
+            
+            // Resetea variables de estado
+            heartbeatScale = 1;
+            dissolveProgress = 0;
+            reforming = false;
+            waveTime = 0;
+            torbellinoAngle = 0;
+            teAmoProgress = 0; // Resetea progreso TE AMO
+            
+            // Reinicia todas las partículas normales a su estado natural
+            particles.forEach(p => {
+                p.vx = (Math.random() - 0.5) * 0.5;
+                p.vy = (Math.random() - 0.5) * 0.5;
+                p.rotationSpeed = (Math.random() - 0.5) * 0.05;
+            });
+            
+            // Efecto visual de "limpieza"
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+    </script>
+</body>
+</html>
