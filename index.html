@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>San valentin</title>
+    <title>San Valentin</title>
     <style>
         * {
             margin: 0;
@@ -256,12 +256,15 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        // ========== DETECCIÓN DE DISPOSITIVO MÓVIL ==========
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
         // ========== SISTEMA DE PARTÍCULAS ==========
         const particles = []; // Array que contendrá todas las partículas
         const dissolveParticles = []; // Array para las partículas del corazón que se deshace
         const starParticles = []; // Array para las estrellas
         const fireworkParticles = []; // Array para fuegos artificiales
-        const particleCount = 150; // Número total de partículas (corazones pequeños)
+        const particleCount = isMobile ? 80 : 150; // Menos partículas en móvil (80 vs 150)
         let mouseX = canvas.width / 2; // Posición X del mouse (inicia en el centro)
         let mouseY = canvas.height / 2; // Posición Y del mouse (inicia en el centro)
         let explosionActive = false; // Variable para activar el efecto de explosión
@@ -502,9 +505,11 @@
                 
                 ctx.save(); // Guarda el estado del canvas
                 
-                // ===== EFECTO DE BRILLO =====
-                ctx.shadowBlur = 15; // Desenfoque de la sombra (brillo)
-                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${alpha * 0.8})`; // Color del brillo
+                // ===== EFECTO DE BRILLO (simplificado en móvil) =====
+                if (!isMobile) {
+                    ctx.shadowBlur = 15; // Desenfoque de la sombra (brillo)
+                    ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${alpha * 0.8})`; // Color del brillo
+                }
                 
                 // Dibuja el corazón en la posición actual con rotación
                 drawHeart(this.x, this.y, this.size, this.rotation);
@@ -891,7 +896,7 @@
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             const size = 180;
-            const particleCount = 300; // Más partículas para mejor definición
+            const particleCount = isMobile ? 180 : 300; // Menos partículas en móvil
             
             // Crea partículas siguiendo exactamente la forma del corazón
             for (let i = 0; i < particleCount; i++) {
@@ -996,8 +1001,8 @@
             const startX = centerX - (letterSpacing * 2.5);
             const startY = centerY;
             
-            // Más partículas por letra para mayor visibilidad (de 75 a 120)
-            const particlesPerLetter = 120;
+            // Menos partículas en móvil para fluidez (70 en móvil, 120 en escritorio)
+            const particlesPerLetter = isMobile ? 70 : 120;
             
             // Puntos para formar cada letra
             const letters = {
@@ -1128,11 +1133,13 @@
 
             // ===== EFECTO DE FUEGOS ARTIFICIALES =====
             if (fireworksActive) {
-                // Crea nuevas explosiones ocasionalmente
-                if (Math.random() < 0.03) {
+                // Crea nuevas explosiones ocasionalmente (menos frecuente en móvil)
+                const spawnChance = isMobile ? 0.02 : 0.03;
+                if (Math.random() < spawnChance) {
                     const x = canvas.width / 2 + (Math.random() - 0.5) * 300;
                     const y = canvas.height / 2 + (Math.random() - 0.5) * 300;
-                    for (let i = 0; i < 30; i++) {
+                    const particleCount = isMobile ? 20 : 30; // Menos partículas por explosión en móvil
+                    for (let i = 0; i < particleCount; i++) {
                         fireworkParticles.push(new FireworkParticle(x, y));
                     }
                 }
@@ -1307,8 +1314,9 @@
         document.getElementById('starsBtn').addEventListener('click', function() {
             starsActive = !starsActive;
             if (starsActive && starParticles.length === 0) {
-                // Crea estrellas si no existen
-                for (let i = 0; i < 50; i++) {
+                // Crea estrellas si no existen (menos en móvil)
+                const starCount = isMobile ? 25 : 50;
+                for (let i = 0; i < starCount; i++) {
                     starParticles.push(new StarParticle());
                 }
             }
@@ -1340,8 +1348,9 @@
         document.getElementById('fireBtn').addEventListener('click', function() {
             fireActive = !fireActive;
             if (fireActive && fireParticles.length === 0) {
-                // Crea partículas de fuego si no existen
-                for (let i = 0; i < 80; i++) {
+                // Crea partículas de fuego si no existen (menos en móvil)
+                const fireCount = isMobile ? 40 : 80;
+                for (let i = 0; i < fireCount; i++) {
                     fireParticles.push(new FireParticle());
                 }
             } else if (!fireActive) {
@@ -1394,4 +1403,3 @@
     </script>
 </body>
 </html>
-
