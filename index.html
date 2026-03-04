@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>SAN VALENTIN</title>
+    <title>Particle Logo Effect</title>
     <style>
         * {
             margin: 0;
@@ -45,9 +45,9 @@
             right: 10px;
             display: flex;
             flex-direction: column;
-            gap: 6px; /* Espacio entre botones */
+            gap: 4px; /* Espacio reducido entre botones */
             z-index: 1000;
-            max-width: 100px; /* Ancho máximo de los botones */
+            max-width: 75px; /* Botones más pequeños */
         }
 
         /* Contenedor de controles izquierda */
@@ -57,9 +57,9 @@
             left: 10px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             z-index: 1000;
-            max-width: 100px;
+            max-width: 75px;
         }
 
         /* Botón de reset en el centro inferior */
@@ -91,13 +91,13 @@
 
         /* Estilos de los botones */
         .btn {
-            padding: 8px 12px; /* Padding reducido para botones más compactos */
+            padding: 6px 8px; /* Padding más compacto */
             background: rgba(255, 107, 0, 0.9);
             border: none;
-            border-radius: 6px; /* Bordes redondeados */
+            border-radius: 5px; /* Bordes redondeados */
             color: white;
             font-weight: bold;
-            font-size: 11px; /* Texto más pequeño */
+            font-size: 9px; /* Texto más pequeño */
             cursor: pointer;
             transition: all 0.3s ease; /* Transición suave */
             box-shadow: 0 0 15px rgba(255, 107, 0, 0.5); /* Sombra brillante */
@@ -122,8 +122,8 @@
         /* Botones especiales (explosión y latido) */
         .btn.special {
             background: linear-gradient(135deg, rgba(255, 0, 150, 0.9), rgba(255, 100, 0, 0.9));
-            font-size: 10px;
-            padding: 10px 8px;
+            font-size: 8px;
+            padding: 7px 6px;
         }
 
         .btn.special:hover, .btn.special:active {
@@ -133,8 +133,8 @@
         /* Botón especial TE AMO - destaca más */
         .btn.te-amo {
             background: linear-gradient(135deg, rgba(255, 20, 100, 0.95), rgba(255, 100, 150, 0.95));
-            font-size: 11px;
-            padding: 12px 10px;
+            font-size: 9px;
+            padding: 9px 8px;
             border: 2px solid rgba(255, 150, 200, 0.6);
             box-shadow: 0 0 25px rgba(255, 100, 150, 0.7);
             animation: pulse-love 2s ease-in-out infinite;
@@ -170,8 +170,8 @@
         @media (max-width: 768px) {
             .controls, .controls-left {
                 top: 5px;
-                gap: 4px;
-                max-width: 80px; /* Botones aún más pequeños en móvil */
+                gap: 3px;
+                max-width: 65px; /* Botones más pequeños en móvil */
             }
 
             .controls {
@@ -183,13 +183,18 @@
             }
 
             .btn {
-                padding: 6px 8px;
-                font-size: 9px; /* Texto más pequeño en móvil */
+                padding: 5px 6px;
+                font-size: 8px; /* Texto más pequeño en móvil */
             }
 
             .btn.special {
-                padding: 8px 6px;
-                font-size: 9px;
+                padding: 6px 5px;
+                font-size: 7px;
+            }
+
+            .btn.te-amo {
+                padding: 7px 6px;
+                font-size: 8px;
             }
 
             .reset-btn {
@@ -239,7 +244,7 @@
     <button class="reset-btn" id="resetBtn">🛑 DETENER TODO</button>
 
     <div class="credits">
-        ALO ROJAS
+        Particle Effect
     </div>
 
     <script>
@@ -728,7 +733,7 @@
                 this.vx = (this.x - canvas.width / 2) * 0.15;
                 this.vy = (this.y - canvas.height / 2) * 0.15;
                 
-                this.size = Math.random() * 5 + 3;
+                this.size = Math.random() * 6 + 5; // Corazones más grandes (de 3-8 a 5-11)
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.1;
                 this.alpha = 1;
@@ -757,11 +762,11 @@
                 const [r, g, b] = currentTheme.secondary;
                 
                 ctx.save();
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${this.alpha * 0.8})`;
+                ctx.shadowBlur = 20; // Más brillo (de 15 a 20)
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${this.alpha})`;
                 
                 drawHeart(this.x, this.y, this.size, this.rotation);
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`; // Color más opaco
                 ctx.fill();
                 
                 ctx.restore();
@@ -984,15 +989,15 @@
             // Definir las posiciones de las letras "TE AMO"
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const letterSize = Math.min(canvas.width, canvas.height) * 0.08; // Tamaño adaptativo
+            const letterSize = Math.min(canvas.width, canvas.height) * 0.12; // Letras MÁS GRANDES (de 0.08 a 0.12)
             const letterSpacing = letterSize * 1.8;
             
             // Posiciones de inicio para centrar el texto
             const startX = centerX - (letterSpacing * 2.5);
             const startY = centerY;
             
-            // Usar cantidad moderada de partículas para fluidez (75 partículas por letra)
-            const particlesPerLetter = 75;
+            // Más partículas por letra para mayor visibilidad (de 75 a 120)
+            const particlesPerLetter = 120;
             
             // Puntos para formar cada letra
             const letters = {
@@ -1033,9 +1038,9 @@
                     // Selecciona un punto aleatorio de la letra
                     const point = basePoints[Math.floor(Math.random() * basePoints.length)];
                     
-                    // Añade variación aleatoria para llenar
-                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 8;
-                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 8;
+                    // Añade variación aleatoria para llenar (menos variación para más definición)
+                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 6;
+                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 6;
                     
                     teAmoParticles.push(new TeAmoParticle(x, y));
                 }
