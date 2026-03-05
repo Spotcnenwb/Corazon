@@ -755,7 +755,11 @@
                 this.vx = (this.x - canvas.width / 2) * 0.15;
                 this.vy = (this.y - canvas.height / 2) * 0.15;
                 
-                this.size = Math.random() * 8 + 8; // Corazones MUCHO más grandes (de 5-11 a 8-16)
+                // Tamaño ajustado según dispositivo (más pequeño en móvil para evitar borrosidad)
+                this.size = isMobile 
+                    ? Math.random() * 5 + 6  // 6-11px en móvil
+                    : Math.random() * 6 + 8; // 8-14px en escritorio
+                
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.1;
                 this.alpha = 1;
@@ -785,17 +789,12 @@
                 
                 ctx.save();
                 
-                // MÁS BRILLO para mejor visibilidad
-                ctx.shadowBlur = isMobile ? 25 : 30; // Más brillo incluso en móvil
-                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, 1)`; // Brillo al máximo
+                // Brillo reducido para menos borrosidad
+                ctx.shadowBlur = isMobile ? 15 : 25; // Menos blur en móvil = más nítido
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, 1)`;
                 
                 drawHeart(this.x, this.y, this.size, this.rotation);
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`; // Opacidad completa
-                ctx.fill();
-                
-                // Segundo brillo para resaltar más
-                ctx.shadowBlur = isMobile ? 15 : 20;
-                ctx.shadowColor = `rgba(255, 255, 255, 0.8)`; // Brillo blanco adicional
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 1)`; // Opacidad completa sin blur
                 ctx.fill();
                 
                 ctx.restore();
@@ -1018,15 +1017,20 @@
             // Definir las posiciones de las letras "TE AMO"
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const letterSize = Math.min(canvas.width, canvas.height) * 0.15; // Letras AÚN MÁS GRANDES (de 0.12 a 0.15)
+            
+            // Tamaño ajustado según el dispositivo (más pequeño en móvil para que quepa)
+            const letterSize = isMobile 
+                ? Math.min(canvas.width, canvas.height) * 0.09  // Más pequeño en móvil (9%)
+                : Math.min(canvas.width, canvas.height) * 0.13;  // Normal en escritorio (13%)
+            
             const letterSpacing = letterSize * 1.8;
             
             // Posiciones de inicio para centrar el texto
             const startX = centerX - (letterSpacing * 2.5);
             const startY = centerY;
             
-            // MENOS partículas para evitar saturación (40 en móvil, 60 en escritorio)
-            const particlesPerLetter = isMobile ? 40 : 60;
+            // Partículas optimizadas (50 en móvil, 70 en escritorio)
+            const particlesPerLetter = isMobile ? 50 : 70;
             
             // Puntos para formar cada letra
             const letters = {
@@ -1067,9 +1071,9 @@
                     // Selecciona un punto aleatorio de la letra
                     const point = basePoints[Math.floor(Math.random() * basePoints.length)];
                     
-                    // Menos variación para letras más definidas
-                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 4;
-                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 4;
+                    // Muy poca variación para letras nítidas
+                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 3;
+                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 3;
                     
                     teAmoParticles.push(new TeAmoParticle(x, y));
                 }
