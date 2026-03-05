@@ -293,6 +293,9 @@
         let teAmoActive = false; // Si el efecto está activo
         let teAmoParticles = []; // Partículas para formar las letras
         let teAmoProgress = 0; // Progreso del efecto (0-1)
+        
+        // Efecto Rainbow
+        let rainbowHue = 0; // Variable para el color del arcoíris (0-360)
 
         // ========== TEMAS DE COLORES ==========
         // Cada tema tiene 3 arrays de colores RGB: primario, secundario y brillo
@@ -501,19 +504,33 @@
             // Dibuja la partícula (corazón pequeño) en el canvas
             draw() {
                 const alpha = this.life; // Opacidad basada en la vida restante
-                const [r, g, b] = currentTheme.primary; // Obtiene el color primario del tema actual
                 
                 ctx.save(); // Guarda el estado del canvas
                 
                 // ===== EFECTO DE BRILLO (simplificado en móvil) =====
                 if (!isMobile) {
-                    ctx.shadowBlur = 15; // Desenfoque de la sombra (brillo)
-                    ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${alpha * 0.8})`; // Color del brillo
+                    if (currentTheme === themes.rainbow) {
+                        const hue = (rainbowHue + this.x * 0.2 + this.y * 0.2) % 360;
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = `hsla(${hue}, 100%, 70%, ${alpha * 0.8})`;
+                    } else {
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${alpha * 0.8})`;
+                    }
                 }
                 
                 // Dibuja el corazón en la posición actual con rotación
                 drawHeart(this.x, this.y, this.size, this.rotation);
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.9})`; // Color con transparencia
+                
+                // Color del corazón
+                if (currentTheme === themes.rainbow) {
+                    const hue = (rainbowHue + this.x * 0.2 + this.y * 0.2) % 360;
+                    ctx.fillStyle = `hsla(${hue}, 100%, 60%, ${alpha * 0.9})`;
+                } else {
+                    const [r, g, b] = currentTheme.primary;
+                    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.9})`;
+                }
+                
                 ctx.fill(); // Rellena el corazón
                 
                 ctx.restore(); // Restaura el estado del canvas
@@ -738,7 +755,7 @@
                 this.vx = (this.x - canvas.width / 2) * 0.15;
                 this.vy = (this.y - canvas.height / 2) * 0.15;
                 
-                this.size = Math.random() * 6 + 5; // Corazones más grandes (de 3-8 a 5-11)
+                this.size = Math.random() * 8 + 8; // Corazones MUCHO más grandes (de 5-11 a 8-16)
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.1;
                 this.alpha = 1;
@@ -767,11 +784,18 @@
                 const [r, g, b] = currentTheme.secondary;
                 
                 ctx.save();
-                ctx.shadowBlur = 20; // Más brillo (de 15 a 20)
-                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, ${this.alpha})`;
+                
+                // MÁS BRILLO para mejor visibilidad
+                ctx.shadowBlur = isMobile ? 25 : 30; // Más brillo incluso en móvil
+                ctx.shadowColor = `rgba(${currentTheme.glow[0]}, ${currentTheme.glow[1]}, ${currentTheme.glow[2]}, 1)`; // Brillo al máximo
                 
                 drawHeart(this.x, this.y, this.size, this.rotation);
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`; // Color más opaco
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`; // Opacidad completa
+                ctx.fill();
+                
+                // Segundo brillo para resaltar más
+                ctx.shadowBlur = isMobile ? 15 : 20;
+                ctx.shadowColor = `rgba(255, 255, 255, 0.8)`; // Brillo blanco adicional
                 ctx.fill();
                 
                 ctx.restore();
@@ -994,15 +1018,15 @@
             // Definir las posiciones de las letras "TE AMO"
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const letterSize = Math.min(canvas.width, canvas.height) * 0.12; // Letras MÁS GRANDES (de 0.08 a 0.12)
+            const letterSize = Math.min(canvas.width, canvas.height) * 0.15; // Letras AÚN MÁS GRANDES (de 0.12 a 0.15)
             const letterSpacing = letterSize * 1.8;
             
             // Posiciones de inicio para centrar el texto
             const startX = centerX - (letterSpacing * 2.5);
             const startY = centerY;
             
-            // Menos partículas en móvil para fluidez (70 en móvil, 120 en escritorio)
-            const particlesPerLetter = isMobile ? 70 : 120;
+            // MENOS partículas para evitar saturación (40 en móvil, 60 en escritorio)
+            const particlesPerLetter = isMobile ? 40 : 60;
             
             // Puntos para formar cada letra
             const letters = {
@@ -1043,9 +1067,9 @@
                     // Selecciona un punto aleatorio de la letra
                     const point = basePoints[Math.floor(Math.random() * basePoints.length)];
                     
-                    // Añade variación aleatoria para llenar (menos variación para más definición)
-                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 6;
-                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 6;
+                    // Menos variación para letras más definidas
+                    const x = letterX + point[0] * letterSize + (Math.random() - 0.5) * 4;
+                    const y = startY + point[1] * letterSize + (Math.random() - 0.5) * 4;
                     
                     teAmoParticles.push(new TeAmoParticle(x, y));
                 }
@@ -1083,6 +1107,11 @@
 
             if (torbellinoActive) {
                 torbellinoAngle += 0.05; // Incrementa el ángulo del torbellino
+            }
+            
+            // Incrementa el color del arcoíris
+            if (currentTheme === themes.rainbow) {
+                rainbowHue = (rainbowHue + 1) % 360;
             }
 
             // ===== EFECTO DE RAYOS =====
